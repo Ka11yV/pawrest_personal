@@ -1,0 +1,133 @@
+"use client"
+
+import { useState, useEffect } from "react"
+import Image from "next/image"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react"
+
+const animals = [
+  {
+    id: 1,
+    title: "함께 지키는 펫티켓, 모두가 행복한 산책길",
+    description: "반려견과 외출 시 배변봉투·목줄·입식표 꼭 준비해주세요!",
+    image: "/placeholder.svg?height=400&width=800",
+    link: "/adoption/1",
+  },
+  {
+    id: 2,
+    title: "사랑스러운 강아지 '초코'를 소개합니다",
+    description: "2살 믹스견으로 온순하고 사람을 좋아하는 성격입니다",
+    image: "/placeholder.svg?height=400&width=800",
+    link: "/adoption/2",
+  },
+  {
+    id: 3,
+    title: "고양이 '나비'에게 새 가족이 필요해요",
+    description: "1살 암컷 고양이로 장난기 많고 애교가 넘칩니다",
+    image: "/placeholder.svg?height=400&width=800",
+    link: "/adoption/3",
+  },
+  {
+    id: 4,
+    title: "구조된 토끼 '몽이'를 소개합니다",
+    description: "사랑스러운 토끼 몽이에게 따뜻한 보금자리를 찾아주세요",
+    image: "/placeholder.svg?height=400&width=800",
+    link: "/adoption/4",
+  },
+  {
+    id: 5,
+    title: "반려동물 등록은 의무입니다",
+    description: "동물등록을 통해 잃어버린 반려동물을 찾을 확률을 높여주세요",
+    image: "/placeholder.svg?height=400&width=800",
+    link: "/info/registration",
+  },
+]
+
+export default function AnimalSlider() {
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const [isPlaying, setIsPlaying] = useState(true)
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+
+    if (isPlaying) {
+      interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % animals.length)
+      }, 5000)
+    }
+
+    return () => clearInterval(interval)
+  }, [isPlaying])
+
+  const nextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % animals.length)
+  }
+
+  const prevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + animals.length) % animals.length)
+  }
+
+  const togglePlayPause = () => {
+    setIsPlaying(!isPlaying)
+  }
+
+  return (
+    <div className="relative overflow-hidden rounded-b-xl">
+      <div className="relative h-[400px] overflow-hidden">
+        {animals.map((animal, index) => (
+          <div
+            key={animal.id}
+            className={`absolute inset-0 transition-opacity duration-500 ${
+              index === currentSlide ? "opacity-100" : "opacity-0 pointer-events-none"
+            }`}
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-green-900/70 to-transparent z-10"></div>
+            <Image
+              src={animal.image || "/placeholder.svg"}
+              alt={animal.title}
+              fill
+              className="object-cover"
+              priority={index === 0}
+            />
+            <div className="absolute bottom-0 left-0 right-0 p-8 z-20">
+              <div className="max-w-2xl text-white">
+                <h2 className="text-3xl font-bold mb-4">{animal.title}</h2>
+                <p className="mb-6">{animal.description}</p>
+                <Link
+                  href={animal.link}
+                  className="inline-flex h-10 items-center justify-center rounded-md bg-white px-8 text-sm font-medium text-green-600 shadow transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+                >
+                  자세히 보기
+                </Link>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="absolute bottom-4 right-4 flex items-center gap-1 bg-black/30 rounded-full px-3 py-1 text-white z-30">
+        <span className="text-sm">
+          {currentSlide + 1} / {animals.length}
+        </span>
+        <div className="flex items-center gap-1 ml-2">
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-black/20" onClick={prevSlide}>
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8 text-white hover:bg-black/20"
+            onClick={togglePlayPause}
+          >
+            {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-black/20" onClick={nextSlide}>
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
