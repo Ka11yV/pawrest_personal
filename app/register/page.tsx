@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { CheckCircle2 } from "lucide-react"
+import api from "../utils/api"
+import { useRouter } from "next/navigation";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -22,6 +24,9 @@ export default function RegisterPage() {
   const [isIdAvailable, setIsIdAvailable] = useState<boolean | null>(null)
   const [isEmailVerified, setIsEmailVerified] = useState(false)
   const [verificationCode, setVerificationCode] = useState("")
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false)
+  const router = useRouter();
+  
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -46,32 +51,69 @@ export default function RegisterPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (validateForm()) {
-      console.log("회원가입 시도:", formData)
+    console.log("회원가입 시도:", formData)
+
+    try {
+      if (validateForm()) {
+        const response = await api.post("/user/signup", formData)
+        if (response.status !== 200) {
+          console.error("회원가입 실패:", response.data?.message)
+          throw new Error(response.data?.message || "회원가입 실패")
+        }
+
+        console.log("회원가입 성공:", response.data)
+        router.push("/login")
+        
+      }
+    } catch (err: any) {
+      setErrors((prev) => ({ ...prev, userId: err?.response.data.message || "회원가입 중 오류가 발생했습니다." }))
     }
   }
 
   const checkIdAvailability = async () => {
-    const isAvailable = Math.random() < 0.5
-    setIsIdAvailable(isAvailable)
-    if (!isAvailable) {
-      setErrors((prev) => ({ ...prev, userId: "이미 사용 중인 아이디입니다." }))
-    } else {
-      setErrors((prev) => ({ ...prev, userId: "" }))
+    try {
+      console.log("아이디 중복확인:", formData.userId)
+      const response = await api.get("/user/exists", { params: { userId: formData.userId } })
+  
+      if (response.status !== 200) throw new Error(response.data?.message || "아이디 중복 확인 실패")
+
+      setIsIdAvailable(true)
+
+    } catch (err: any) {
+      console.error("아이디 중복 확인 오류:", err?.data?.message)
+      setErrors((prev) => ({ ...prev, userId: err?.response.data.message || "아이디 중복 확인 중 오류가 발생했습니다." }))
     }
+    
   }
 
   const sendVerificationEmail = async () => {
-    console.log("인증 이메일 발송:", formData.email)
+
+    try {
+      const response = await api.post("/auth/verification/request", { email: formData.email })
+
+      if (response.status !== 200) throw new Error(response.data?.message || "이메일 인증번호 발송 실패")
+  
+      if (response.status === 200) {
+        setEmailVerificationSent(true)
+        errors.email = ""
+      }
+  
+      console.log("인증 이메일 발송:", formData.email)
+    } catch (err: any) {
+      console.error("이메일 인증번호 발송 오류:", err?.data?.message)
+      setErrors((prev) => ({ ...prev, email: err?.response.data.message || "이메일 인증번호 발송 중 오류가 발생했습니다." }))
+    }
   }
 
   const verifyEmail = async () => {
-    const isVerified = verificationCode === "123456"
-    setIsEmailVerified(isVerified)
-    if (!isVerified) {
-      setErrors((prev) => ({ ...prev, email: "인증번호가 일치하지 않습니다." }))
-    } else {
-      setErrors((prev) => ({ ...prev, email: "" }))
+    try {
+      const response = await api.post("/auth/verification/confirm", { email: formData.email, verificationCode: verificationCode })
+
+      response.status === 200 ? setIsEmailVerified(true) : setIsEmailVerified(false)
+      response.status === 200 ? errors.email = "" : errors.email = "이메일 인증번호가 일치하지 않습니다."
+    } catch(err: any) {
+      console.error("이메일 인증 오류:", err?.data?.message)
+      setErrors((prev) => ({ ...prev, email: err?.response.data.message || "이메일 인증 중 오류가 발생했습니다." }))
     }
   }
 
@@ -149,6 +191,11 @@ export default function RegisterPage() {
                   인증하기
                 </Button>
               </div>
+              {emailVerificationSent === true && (
+                <p className="text-green-600 text-sm flex items-center gap-1">
+                  <CheckCircle2 className="w-4 h-4" /> 인증번호가 전송되었습니다.
+                </p>
+              )}
               {!isEmailVerified && (
                 <div className="flex gap-2 mt-2">
                   <Input

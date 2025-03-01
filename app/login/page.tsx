@@ -13,14 +13,16 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { GoogleLoginButton } from "@/components/google-login-button"
 import { AlertCircle } from "lucide-react"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import api from "../utils/api"
 import { useRouter } from "next/navigation";
+import api from "../utils/api"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("")
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
   
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -62,17 +64,32 @@ export default function LoginPage() {
                 required
               />
             </div>
-            <div className="grid gap-2 mt-4">
-              <Label htmlFor="password">비밀번호</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="비밀번호를 입력하세요"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
+            <div className="grid gap-2 mt-4 relative">
+      <Label htmlFor="password">비밀번호</Label>
+      <div className="relative">
+        <Input
+          id="password"
+          type={showPassword ? "text" : "password"}
+          placeholder="비밀번호를 입력하세요"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className="pr-12" // 아이콘 공간 확보
+        />
+        <button
+          type="button"
+          className="absolute inset-y-0 right-3 flex items-center"
+          onClick={() => setShowPassword(!showPassword)}
+        >
+          <Image
+            src={showPassword ? "/assets/show.png" : "/assets/hide.png"}
+            alt="비밀번호 표시 토글"
+            width={20}
+            height={20}
+          />
+        </button>
+      </div>
+    </div>
             {error && (
               <Alert variant="destructive" className="mt-4">
                 <AlertCircle className="h-4 w-4" />

@@ -47,6 +47,7 @@ export default function Home() {
             <div className="bg-white p-6 rounded-lg shadow-sm">
               <div className="flex items-center gap-2 mb-2">
                 <span className="bg-orange-100 text-orange-600 text-xs px-2 py-1 rounded-full">중요</span>
+                
                 <span className="text-sm text-muted-foreground">2025.02.04</span>
               </div>
               <h3 className="font-medium mb-2">시스템 점검 안내 [2.4(화) 18:00 ~ 22:00]</h3>

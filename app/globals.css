@@ -24,6 +24,9 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 142.1 76.2% 36.3%;
     --radius: 0.5rem;
+    image-rendering: -webkit-optimize-contrast;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .dark {
@@ -57,4 +60,3 @@
     @apply bg-background text-foreground;
   }
 }
-
