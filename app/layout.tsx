@@ -1,3 +1,5 @@
+"use client"
+
 import type React from "react";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
@@ -6,14 +8,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Search, Grid2X2 } from "lucide-react";
 import "./globals.css";
+import { Header } from "@/components/header"
+import { CookiesProvider } from 'react-cookie';
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "PAWREST - 모든 생명은 소중합니다",
-  description:
-    "유기동물 보호와 입양을 위한 공식 웹사이트입니다. 실종동물 찾기, 입양 정보, 보호소 기부 등 다양한 서비스를 제공합니다.",
-};
 
 export default function RootLayout({
   children,
@@ -21,6 +20,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
+    <CookiesProvider>
     <html lang="ko">
       <body className={inter.className}>
         <div className="flex flex-col min-h-screen">
@@ -30,66 +30,7 @@ export default function RootLayout({
         </div>
       </body>
     </html>
-  );
-}
-
-function Header() {
-  return (
-    <header className="w-full bg-white border-b sticky top-0 z-50">
-      <div className="container flex justify-between items-center py-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="font-bold text-2xl text-green-600">PAWREST</span>
-        </Link>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="/lost-found"
-            className="font-medium hover:text-green-600 py-2"
-          >
-            실종동물 찾기
-          </Link>
-          <Link
-            href="/community"
-            className="font-medium hover:text-green-600 py-2"
-          >
-            커뮤니티
-          </Link>
-          <Link
-            href="petAllowed"
-            className="font-medium hover:text-green-600 py-2"
-          >
-            산책 지도
-          </Link>
-          <Link href="/shop" className="font-medium hover:text-green-600 py-2">
-            물품 기부
-          </Link>
-          <Link
-            href="/donation"
-            className="font-medium hover:text-green-600 py-2"
-          >
-            보호소 후원
-          </Link>
-          <Link
-            href="/donor-list"
-            className="font-medium hover:text-green-600 py-2"
-          >
-            후원자 명단
-          </Link>
-          <Link href="/adopt" className="font-medium hover:text-green-600 py-2">
-            입양신청
-          </Link>
-        </nav>
-        <div className="flex items-center gap-3">
-          <Link href="/login">
-            <Button className="w-full mt-3" variant="white">
-              로그인
-            </Button>
-          </Link>
-          <Link href="/register">
-            <Button className="w-full mt-3">회원가입</Button>
-          </Link>
-        </div>
-      </div>
-    </header>
+    </CookiesProvider>
   );
 }
 

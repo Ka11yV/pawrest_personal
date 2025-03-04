@@ -119,7 +119,7 @@ export function RescuedAnimalsSlider() {
                       convertUrl(animal.filename) || "/assets/placeholder.png"
                     }
                     alt={"구조된 동물 이미지"}
-                    layout="fill"
+                    fill
                     style={{ objectFit: "cover" }} // objectFit을 스타일로 적용
                     className="rounded-md"
                   />

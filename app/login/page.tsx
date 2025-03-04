@@ -16,6 +16,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useRouter } from "next/navigation";
 import api from "../utils/api"
 import Image from "next/image"
+import { useCookies } from 'react-cookie';
 
 export default function LoginPage() {
   const [userId, setUserId] = useState("")
@@ -23,6 +24,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null)
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
+  const [cookies, setCookie, removeCookie] = useCookies(['id']);
   
 
   const handleSubmit = async (e: React.FormEvent) => {

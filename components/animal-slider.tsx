@@ -88,7 +88,7 @@ export default function AnimalSlider() {
             <Image
               src={animal.image || "/placeholder.svg"}
               alt={animal.title}
-              layout="fill"
+              fill
               className="object-cover"
               priority={index === 0}
             />
