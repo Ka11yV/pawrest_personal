@@ -38,7 +38,7 @@ function Header() {
     <header className="w-full bg-white border-b sticky top-0 z-50">
       <div className="container flex justify-between items-center py-4">
         <Link href="/" className="flex items-center gap-2">
-          <span className="font-bold text-xl text-green-600">PAWREST</span>
+          <span className="font-bold text-2xl text-green-600">PAWREST</span>
         </Link>
         <nav className="hidden md:flex items-center gap-8">
           <Link
