@@ -4,6 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, MapPin, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import LostFoundCard from "@/components/lost-found-card";
+import missingAnimalStore from "../store/postStore";
 
 // 샘플 데이터
 const lostPets = [
@@ -20,7 +21,7 @@ const lostPets = [
     description:
       "갈색 털의 골든 리트리버입니다. 목에 파란색 목줄을 하고 있으며, 사람을 잘 따릅니다. 발견하시면 연락 부탁드립니다.",
     contact: "010-1234-5678",
-    image: "/assets/placeholder.png",
+    image: "/assets/placeholder.png", 
     reward: "50만원",
     status: "찾는 중",
   },
@@ -129,6 +130,10 @@ const foundPets = [
 ];
 
 export default function LostFoundPage() {
+
+
+  
+
   return (
     <div className="container py-8">
       {/* Page Header */}

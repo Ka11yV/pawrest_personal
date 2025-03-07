@@ -15,14 +15,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, MapPin, Calendar, AlertCircle } from "lucide-react"
+import missingAnimalStore from "@/app/store/postStore"
+import { rewardFormatting } from "@/app/utils/textFormmating"
+import MissingAnimalPost from "@/app/Interface/post"
 
 export default function CreateLostFoundPage() {
   const router = useRouter()
   const [postType, setPostType] = useState<"lost" | "found">("lost")
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const {createPost} = missingAnimalStore();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
@@ -33,111 +38,40 @@ export default function CreateLostFoundPage() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setLoading(true)
-
-    // 여기서 실제 데이터 제출 로직이 들어갈 것입니다
-    // API 호출 등을 수행한 후 성공 시 리다이렉트
-
-    setTimeout(() => {
-      setLoading(false)
-      router.push("/lost-found")
-    }, 1500)
+    try {
+      const formData = new FormData(e.target as HTMLFormElement);
+      
+      const postData: MissingAnimalPost = {
+        title: formData.get('title') as string,
+        body: formData.get('body') as string,
+        image: imagePreview || '',
+        species: formData.get('species') as "dog" | "cat" | "rabbit" | "bird" | "other",
+        age: formData.get('age') as string,
+        breed: formData.get('breed') as string,
+        location: formData.get('location') as string,
+        date: formData.get('date') as string,
+        reward: formData.get('reward') ? Number(formData.get('reward')) : 0,  // reward 값이 없을 경우 0으로 처리
+        contact: formData.get('contact') as string,
+        postType: postType,
+        gender: formData.get('gender') as "male" | "female" | "unknown",  // gender 타입 수정
+      };
+      
+      const response = await createPost(postData);
+      console.log(response);
+      router.push("/lost-found");
+      
+    } catch (error) {
+      console.error("게시물 생성 중 오류가 발생했습니다:", error);
+      alert("게시물을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Top Links */}
-      <div className="w-full bg-white border-b">
-        <div className="container flex justify-between items-center py-1 text-xs text-muted-foreground">
-          <div className="flex gap-4">
-            <Link href="#" className="hover:text-primary flex items-center gap-1">
-              동물보호법안내 <span className="text-[10px]">↗</span>
-            </Link>
-            <Link href="#" className="hover:text-primary flex items-center gap-1">
-              동물사랑시민 <span className="text-[10px]">↗</span>
-            </Link>
-            <Link href="#" className="hover:text-primary flex items-center gap-1">
-              관리시스템(시군구, 대형업체) <span className="text-[10px]">↗</span>
-            </Link>
-          </div>
-          <div className="flex gap-4">
-            <Link href="/login" className="hover:text-primary">
-              로그인
-            </Link>
-            <Link href="/register" className="hover:text-primary">
-              회원가입
-            </Link>
-            <Link href="/mypage" className="hover:text-primary">
-              마이페이지
-            </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* Main Header */}
-      <header className="w-full bg-white border-b sticky top-0 z-50">
-        <div className="container flex justify-between items-center py-4">
-          <Link href="/" className="flex items-center gap-2">
-            <Image
-              src="/assets/placeholder.png"
-              alt="로고"
-              width={40}
-              height={40}
-              className="text-green-600"
-            />
-            <span className="font-bold text-xl text-green-600">유기동물보호센터</span>
-          </Link>
-
-          <nav className="hidden md:flex items-center gap-8">
-            <div className="relative group">
-              <Link href="/animals" className="font-medium hover:text-green-600 py-2">
-                동물들목록
-              </Link>
-              <div className="absolute hidden group-hover:block bg-white shadow-lg rounded-md p-2 min-w-40">
-                <Link href="/animals/dogs" className="block px-4 py-2 hover:bg-muted rounded-sm">
-                  강아지
-                </Link>
-                <Link href="/animals/cats" className="block px-4 py-2 hover:bg-muted rounded-sm">
-                  고양이
-                </Link>
-                <Link href="/animals/others" className="block px-4 py-2 hover:bg-muted rounded-sm">
-                  기타동물
-                </Link>
-              </div>
-            </div>
-            <Link href="/community" className="font-medium hover:text-green-600 py-2">
-              커뮤니티
-            </Link>
-            <Link href="/lost-found" className="font-medium text-green-600 border-b-2 border-green-600 py-2">
-              실종동물 찾기
-            </Link>
-            <Link href="/information" className="font-medium hover:text-green-600 py-2">
-              정보제공
-            </Link>
-            <Link href="/adoption-guide" className="font-medium hover:text-green-600 py-2">
-              입양자관리
-            </Link>
-            <Link href="/donation" className="font-medium hover:text-green-600 py-2">
-              보호소 기부
-            </Link>
-            <Link href="/adoption-stories" className="font-medium hover:text-green-600 py-2">
-              입양관리
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon">
-              <MapPin className="h-5 w-5" />
-            </Button>
-            <Button variant="ghost" size="icon">
-              <Calendar className="h-5 w-5" />
-            </Button>
-          </div>
-        </div>
-      </header>
-
       <main className="flex-1 bg-slate-50 py-8">
         <div className="container max-w-4xl">
           {/* Page Header */}
@@ -159,7 +93,7 @@ export default function CreateLostFoundPage() {
                 className="mb-6"
                 onValueChange={(value) => setPostType(value as "lost" | "found")}
               >
-                <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsList className="grid w-full h-full grid-cols-2 mb-6">
                   <TabsTrigger value="lost" className="text-base py-3">
                     실종된 동물 등록
                   </TabsTrigger>
@@ -178,6 +112,7 @@ export default function CreateLostFoundPage() {
                     <div className="space-y-2">
                       <Label htmlFor="title">제목</Label>
                       <Input
+                        name="title"
                         id="title"
                         placeholder={postType === "lost" ? "잃어버린 동물에 대한 제목" : "발견한 동물에 대한 제목"}
                         required
@@ -186,7 +121,7 @@ export default function CreateLostFoundPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="species">동물 종류</Label>
-                      <Select defaultValue="dog">
+                      <Select name="species" defaultValue="dog">
                         <SelectTrigger id="species">
                           <SelectValue placeholder="동물 종류 선택" />
                         </SelectTrigger>
@@ -204,13 +139,13 @@ export default function CreateLostFoundPage() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="breed">품종</Label>
-                      <Input id="breed" placeholder="품종을 입력하세요" />
+                      <Input id="breed" name="breed" placeholder="품종을 입력하세요" />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="gender">성별</Label>
                       <Select defaultValue="unknown">
-                        <SelectTrigger id="gender">
+                        <SelectTrigger id="gender" name="gender">
                           <SelectValue placeholder="성별 선택" />
                         </SelectTrigger>
                         <SelectContent>
@@ -223,10 +158,11 @@ export default function CreateLostFoundPage() {
 
                     <div className="space-y-2">
                       <Label htmlFor="age">나이</Label>
-                      <Input id="age" placeholder="나이를 입력하세요 (추정 가능)" />
+                      <Input id="age" name="age" placeholder="나이를 입력하세요 (추정 가능)" />
                     </div>
                   </div>
                 </div>
+
 
                 {/* 위치 및 시간 정보 */}
                 <div className="space-y-4">
@@ -235,19 +171,27 @@ export default function CreateLostFoundPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="location">{postType === "lost" ? "실종 장소" : "발견 장소"}</Label>
-                      <Input id="location" placeholder="상세 주소를 입력하세요" required />
+                      <Input id="location" name="location" placeholder="상세 주소를 입력하세요" required />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="date">{postType === "lost" ? "실종 날짜" : "발견 날짜"}</Label>
-                      <Input id="date" type="date" required />
+                      <Input id="date" name="date" type="date" required />
                     </div>
                   </div>
 
                   {postType === "lost" && (
                     <div className="space-y-2">
                       <Label htmlFor="reward">사례금 (선택사항)</Label>
-                      <Input id="reward" placeholder="사례금 금액을 입력하세요" />
+                      <Input 
+                        type="number" 
+                        id="reward" 
+                        name="reward" 
+                        placeholder="사례금 금액을 입력하세요 (만원 단위)"
+                        step={10000}
+                        min={0}
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">* 만원 단위로만 입력 가능합니다. (예: 10000, 20000)</p>
                     </div>
                   )}
                 </div>
@@ -257,9 +201,10 @@ export default function CreateLostFoundPage() {
                   <h2 className="text-xl font-semibold">상세 정보</h2>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">상세 설명</Label>
+                    <Label htmlFor="body">상세 설명</Label>
                     <Textarea
-                      id="description"
+                      id="body"
+                      name="body"
                       placeholder={
                         postType === "lost"
                           ? "잃어버린 동물의 특징, 상황 등을 자세히 설명해주세요."
@@ -272,7 +217,7 @@ export default function CreateLostFoundPage() {
 
                   <div className="space-y-2">
                     <Label htmlFor="contact">연락처</Label>
-                    <Input id="contact" placeholder="연락 가능한 전화번호를 입력하세요" required />
+                    <Input id="contact" name="contact" placeholder="연락 가능한 전화번호를 입력하세요" required />
                     <p className="text-xs text-muted-foreground mt-1">* 개인정보 보호를 위해 일부만 공개됩니다.</p>
                   </div>
                 </div>
@@ -288,6 +233,7 @@ export default function CreateLostFoundPage() {
                         <Input
                           id="image"
                           type="file"
+                          name="image"
                           accept="image/*"
                           className="hidden"
                           onChange={handleImageChange}
@@ -356,81 +302,6 @@ export default function CreateLostFoundPage() {
           </Card>
         </div>
       </main>
-
-      <footer className="bg-slate-800 text-slate-200 py-12">
-        <div className="container">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <h3 className="font-bold mb-4">유기동물보호센터</h3>
-              <p className="text-sm text-slate-400">
-                유기동물 보호와 입양을 위한 공식 웹사이트입니다. 모든 생명은 소중합니다.
-              </p>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4">바로가기</h3>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li>
-                  <Link href="/about" className="hover:text-white">
-                    소개
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/animals" className="hover:text-white">
-                    동물들목록
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/community" className="hover:text-white">
-                    커뮤니티
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/lost-found" className="hover:text-white">
-                    실종동물 찾기
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4">고객지원</h3>
-              <ul className="space-y-2 text-sm text-slate-400">
-                <li>
-                  <Link href="/faq" className="hover:text-white">
-                    자주 묻는 질문
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/contact" className="hover:text-white">
-                    문의하기
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/terms" className="hover:text-white">
-                    이용약관
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-white">
-                    개인정보처리방침
-                  </Link>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-bold mb-4">연락처</h3>
-              <address className="text-sm text-slate-400 not-italic">
-                <p>서울특별시 강남구 테헤란로 123</p>
-                <p>유기동물보호센터 빌딩 5층</p>
-                <p>전화: 02-123-4567</p>
-                <p>이메일: info@animalshelter.kr</p>
-              </address>
-            </div>
-          </div>
-          <div className="border-t border-slate-700 mt-8 pt-8 text-sm text-slate-400">
-            <p>© {new Date().getFullYear()} 유기동물보호센터. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import AnimalSlider from "@/components/animal-slider";
 import { RescuedAnimalsSlider } from "@/components/rescued-animals-slider";
 
+
 export default function Home() {
   return (
     <>

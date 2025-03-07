@@ -6,10 +6,10 @@ type ErrorStore = {
   clearError: () => void;
 };
 
-const errorStore = create((set) => ({
+const errorStore = create<ErrorStore>((set) => ({
   error: "",
   setError: (error: string) => set(() => ({ error: error })),
-  clearError: () => set(() => ({ error: null })),
+  clearError: () => set(() => ({ error: "" })),
 }));
 
 export default errorStore;

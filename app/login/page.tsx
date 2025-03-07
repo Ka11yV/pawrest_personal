@@ -31,7 +31,6 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [cookies, setCookie, removeCookie] = useCookies(["userId"]);
   const { login, setUser, isLogged } = userStore();
   const { error, setError } = errorStore();
 
@@ -47,6 +46,10 @@ export default function LoginPage() {
       setError(response.response.data.message);
     }
   };
+
+  if(isLogged){
+    router.push("/")
+  }
 
   return (
     <div className="container max-w-md my-8">

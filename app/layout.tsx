@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import Image from "next/image";
 import Link from "next/link";
@@ -11,13 +10,17 @@ import "./globals.css";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 
+
 const inter = Inter({ subsets: ["latin"] });
 
-export default function RootLayout({
+export default function RootLayout({  
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+
+
   return (
     <html lang="ko">
       <body className={inter.className}>

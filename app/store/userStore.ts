@@ -1,8 +1,8 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from 'zustand/middleware';
 import api from "../utils/api";
-import errorStore from "./errorStore";
 
-type Store = {
+type userStore = {
   user: string;
   isLogged: boolean;
   sessionChecked: boolean;
@@ -20,91 +20,112 @@ type Store = {
   checkSession: () => Promise<any>;
 };
 
-const userStore = create<Store>((set) => ({
-  user: "",
-  isLogged: false,
-  setIsLogged: (isLogged) => set({ isLogged }),
-  setUser: (user) => set({ user }),
-  sessionChecked: false,
+const userStore = create(
+  persist<userStore>(
+    (set) => ({
+      user: "",
+      isLogged: false,
+      sessionChecked: false,
+      
+      setIsLogged: (isLogged) => set({ isLogged }),
+      setUser: (user) => set({ user }),
 
-  // 회원가입 함수
-  register: async (userId, password, confirmPassword, name, email) => {
-    try {
-      // 비밀번호 확인
-      if (password !== confirmPassword) {
-        return { error: "비밀번호가 일치하지 않습니다." };
-      }
+      // 기존 함수들 그대로 유지
+      register: async (userId, password, confirmPassword, name, email) => {
+        try {
+          if (password !== confirmPassword) {
+            return { error: "비밀번호가 일치하지 않습니다." };
+          }
 
-      const response = await api.post("/auth/signup", {
-        userId,
-        password,
-        name,
-        email,
-      });
+          const response = await api.post("/auth/signup", {
+            userId,
+            password,
+            name,
+            email,
+          });
 
-      if (response.status !== 200) {
-        throw new Error(response.data?.error || "회원가입 실패");
-      }
+          if (response.status !== 200) {
+            throw new Error(response.data?.error || "회원가입 실패");
+          }
 
-      return response.data;
-    } catch (error: any) {
-      console.error(error.message || error);
-      return { error: error.message || "회원가입 실패" };
+          return response.data;
+        } catch (error: any) {
+          console.error(error.message || error);
+          return { error: error.message || "회원가입 실패" };
+        }
+      },
+
+      login: async (userId, password) => {
+        try {
+          const response = await api.post("/auth/login", { userId, password });
+
+          if (response.status !== 200) {
+            throw new Error(response.data?.error || "로그인 실패");
+          }
+
+          set({
+            isLogged: true,
+            user: userId,
+          });
+          
+          return response.data;
+        } catch (error: any) {
+          return error;
+        }
+      },
+
+      logout: async () => {
+        try {
+          const response = await api.post("/auth/logout");
+          
+          if (response.status === 200) {
+            // 상태 초기화 및 스토리지 지우기
+            set({ isLogged: false, user: "" });
+            userStore.persist.clearStorage();
+            return response;
+          } else {
+            throw new Error(response.data?.error);
+          }
+        } catch (error: any) {
+          return error;
+        }
+      },
+
+      checkSession: async () => {
+        try {
+          const response = await api.get("/auth/session");
+
+          if (response.status === 200) {
+            set({
+              sessionChecked: true,
+              isLogged: true, 
+              user: response.data.userId 
+            });
+          }
+        } catch (error: any) {
+          if(error.response.data.statusCode === 401) {
+            set({
+              isLogged: false, 
+              sessionChecked: true,
+              user: ""
+            });
+            // 세션 체크 실패 시 스토리지 초기화
+            userStore.persist.clearStorage();
+          }
+          return error.response.data;
+        }
+      },
+    }),
+    {
+      name: "user", // localStorage에 저장될 키 이름
+      storage: createJSONStorage(() => localStorage),
     }
-  },
+  )
+);
 
-  // 로그인 함수
-  login: async (userId, password) => {
-    try {
-      const response = await api.post("/auth/login", { userId, password });
-
-      if (response.status !== 200) {
-        throw new Error(response.data?.error || "로그인 실패");
-      }
-
-      localStorage.setItem("userId", userId);
-
-      // 로그인 성공 시 상태 업데이트
-      set({
-        isLogged: true,
-        user: userId,
-      });
-      return response.data; // 로그인 성공 시 서버 응답 반환
-    } catch (error: any) {
-      return error;
-    }
-  },
-
-  // 로그아웃 함수
-  logout: async () => {
-    try {
-      const response = await api.post("/auth/logout");
-
-      if (response.status === 200) {
-        localStorage.removeItem("userId");
-        set({ isLogged: false, user: "" });
-        return response;
-      } else {
-        throw new Error(response.data?.error);
-      }
-    } catch (error: any) {
-      return error;
-    }
-  },
-
-  checkSession: async () => {
-    try {
-      const response = await api.get("/auth/session");
-      set({ sessionChecked: true });
-      if (response.status === 200) {
-        set({ isLogged: true, user: response.data.userId });
-      } else {
-        set({ isLogged: false, user: "" });
-      }
-    } catch (error: any) {
-      return error;
-    }
-  },
-}));
+// 외부에서 스토리지 지우기 메서드 추가
+export const clearUserStorage = () => {
+  userStore.persist.clearStorage();
+};
 
 export default userStore;
