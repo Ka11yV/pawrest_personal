@@ -21,7 +21,7 @@ const lostPets = [
     description:
       "갈색 털의 골든 리트리버입니다. 목에 파란색 목줄을 하고 있으며, 사람을 잘 따릅니다. 발견하시면 연락 부탁드립니다.",
     contact: "010-1234-5678",
-    image: "/assets/placeholder.png", 
+    image: "/assets/placeholder.png",
     reward: "50만원",
     status: "찾는 중",
   },
@@ -130,10 +130,6 @@ const foundPets = [
 ];
 
 export default function LostFoundPage() {
-
-
-  
-
   return (
     <div className="container py-8">
       {/* Page Header */}
@@ -176,8 +172,8 @@ export default function LostFoundPage() {
       </div>
 
       {/* Tabs and Content */}
-      <Tabs defaultValue="lost" className="mb-8">
-        <TabsList className="grid w-full grid-cols-2 mb-6">
+      <Tabs defaultValue="lost" className="mb-6">
+        <TabsList className="grid w-full h-full grid-cols-2 mb-6">
           <TabsTrigger value="lost" className="text-base py-3">
             실종된 동물
           </TabsTrigger>
