@@ -11,6 +11,7 @@ interface MissingAnimalPost {
   contact: string;
   postType: "lost" | "found";
   gender: "male" | "female" | "unknown";
+  status: "finding" | "found";
 }
 
 export default MissingAnimalPost;

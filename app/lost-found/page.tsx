@@ -1,3 +1,5 @@
+"use client";
+
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -5,131 +7,57 @@ import { Search, MapPin, Calendar } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import LostFoundCard from "@/components/lost-found-card";
 import missingAnimalStore from "../store/postStore";
+import { useEffect, useState } from "react";
 
 // 샘플 데이터
-const lostPets = [
-  {
-    id: 1,
-    type: "lost",
-    title: "골든 리트리버 '초코' 찾습니다",
-    species: "개",
-    breed: "골든 리트리버",
-    gender: "수컷",
-    age: "3살",
-    location: "서울시 강남구 역삼동",
-    date: "2025-02-20",
-    description:
-      "갈색 털의 골든 리트리버입니다. 목에 파란색 목줄을 하고 있으며, 사람을 잘 따릅니다. 발견하시면 연락 부탁드립니다.",
-    contact: "010-1234-5678",
-    image: "/assets/placeholder.png",
-    reward: "50만원",
-    status: "찾는 중",
-  },
-  {
-    id: 2,
-    type: "lost",
-    title: "하얀색 말티즈 '뽀미' 실종",
-    species: "개",
-    breed: "말티즈",
-    gender: "암컷",
-    age: "2살",
-    location: "서울시 서초구 반포동",
-    date: "2025-02-22",
-    description:
-      "하얀색 말티즈로 오른쪽 눈 위에 작은 갈색 점이 있습니다. 발견하시면 연락 부탁드립니다.",
-    contact: "010-2345-6789",
-    image: "/assets/placeholder.png",
-    reward: "30만원",
-    status: "찾는 중",
-  },
-  {
-    id: 3,
-    type: "lost",
-    title: "검은 고양이 '나비' 찾아요",
-    species: "고양이",
-    breed: "코리안 숏헤어",
-    gender: "암컷",
-    age: "1살",
-    location: "경기도 성남시 분당구",
-    date: "2025-02-18",
-    description:
-      "검은색 털에 노란 눈을 가진 고양이입니다. 목에 빨간색 목걸이를 하고 있습니다.",
-    contact: "010-3456-7890",
-    image: "/assets/placeholder.png",
-    reward: "20만원",
-    status: "찾는 중",
-  },
-  {
-    id: 4,
-    type: "lost",
-    title: "시베리안 허스키 '루나' 실종",
-    species: "개",
-    breed: "시베리안 허스키",
-    gender: "암컷",
-    age: "4살",
-    location: "인천시 연수구",
-    date: "2025-02-24",
-    description:
-      "회색과 흰색 털을 가진 시베리안 허스키입니다. 파란 눈을 가지고 있으며 사람을 잘 따릅니다.",
-    contact: "010-4567-8901",
-    image: "/assets/placeholder.png",
-    reward: "40만원",
-    status: "찾는 중",
-  },
-];
+// const lostPets = [
+//   {
+//     id: 1,
+//     type: "lost",
+//     title: "골든 리트리버 '초코' 찾습니다",
+//     species: "개",
+//     breed: "골든 리트리버",
+//     gender: "수컷",
+//     age: "3살",
+//     location: "서울시 강남구 역삼동",
+//     date: "2025-02-20",
+//     description:
+//       "갈색 털의 골든 리트리버입니다. 목에 파란색 목줄을 하고 있으며, 사람을 잘 따릅니다. 발견하시면 연락 부탁드립니다.",
+//     contact: "010-1234-5678",
+//     image: "/assets/placeholder.png",
+//     reward: "50만원",
+//     status: "찾는 중",
+//   },
+// ];
 
-const foundPets = [
-  {
-    id: 101,
-    type: "found",
-    title: "갈색 푸들 발견했습니다",
-    species: "개",
-    breed: "토이 푸들",
-    gender: "미상",
-    age: "추정 2-3살",
-    location: "서울시 마포구 합정동",
-    date: "2025-02-23",
-    description:
-      "갈색 토이 푸들로 보이는 강아지를 발견했습니다. 목줄은 없었고 사람을 잘 따릅니다. 주인 분을 찾습니다.",
-    contact: "010-5678-9012",
-    image: "/assets/placeholder.png",
-    status: "임시보호 중",
-  },
-  {
-    id: 102,
-    type: "found",
-    title: "치와와 발견",
-    species: "개",
-    breed: "치와와",
-    gender: "수컷",
-    age: "추정 5살 이상",
-    location: "경기도 고양시 일산동구",
-    date: "2025-02-21",
-    description:
-      "갈색 치와와를 발견했습니다. 나이가 좀 있어 보이며 검은색 목줄을 하고 있었습니다.",
-    contact: "010-6789-0123",
-    image: "/assets/placeholder.png",
-    status: "임시보호 중",
-  },
-  {
-    id: 103,
-    type: "found",
-    title: "회색 고양이 발견",
-    species: "고양이",
-    breed: "러시안 블루 추정",
-    gender: "암컷",
-    age: "추정 1-2살",
-    location: "서울시 송파구 잠실동",
-    date: "2025-02-19",
-    description:
-      "회색 털의 고양이를 발견했습니다. 목걸이는 없었고 사람을 경계하는 편입니다.",
-    contact: "010-7890-1234",
-    image: "/assets/placeholder.png",
-    status: "보호소 인계",
-  },
-];
+// const foundPets = [
+//   {
+//     id: 103,
+//     type: "found",
+//     title: "회색 고양이 발견",
+//     species: "고양이",
+//     breed: "러시안 블루 추정",
+//     gender: "암컷",
+//     age: "추정 1-2살",
+//     location: "서울시 송파구 잠실동",
+//     date: "2025-02-19",
+//     description:
+//       "회색 털의 고양이를 발견했습니다. 목걸이는 없었고 사람을 경계하는 편입니다.",
+//     contact: "010-7890-1234",
+//     image: "/assets/placeholder.png",
+//     status: "보호소 인계",
+//   },
+// ];
 
 export default function LostFoundPage() {
+  const { lostPets, foundPets } = missingAnimalStore();
+  const { getLostAnimalPosts, getFoundAnimalPosts } = missingAnimalStore();
+
+  useEffect(() => {
+    getLostAnimalPosts();
+    getFoundAnimalPosts();
+  }, []);
+
   return (
     <div className="container py-8">
       {/* Page Header */}
@@ -175,16 +103,16 @@ export default function LostFoundPage() {
       <Tabs defaultValue="lost" className="mb-6">
         <TabsList className="grid w-full h-full grid-cols-2 mb-6">
           <TabsTrigger value="lost" className="text-base py-3">
-            실종된 동물
+            반려동물을 찾습니다
           </TabsTrigger>
           <TabsTrigger value="found" className="text-base py-3">
-            발견된 동물
+            주인을 찾습니다
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="lost" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {lostPets.map((pet) => (
+            {lostPets?.map((pet) => (
               <LostFoundCard key={pet.id} pet={pet} />
             ))}
           </div>
@@ -245,7 +173,7 @@ export default function LostFoundPage() {
 
         <TabsContent value="found" className="mt-0">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {foundPets.map((pet) => (
+            {foundPets?.map((pet) => (
               <LostFoundCard key={pet.id} pet={pet} />
             ))}
           </div>

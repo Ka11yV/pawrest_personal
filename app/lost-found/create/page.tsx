@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -32,37 +32,30 @@ import { useImageStore } from "@/app/store/imageStore";
 export default function CreateLostFoundPage() {
   const router = useRouter();
   const [postType, setPostType] = useState<"lost" | "found">("lost");
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { createPost } = missingAnimalStore();
-  const { checkImage, saveImage } = useImageStore();
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
-
-  const clearImage = () => {
-    setImagePreview(null);
-  };
+  const {
+    checkImage,
+    imageUrl,
+    imagePreview,
+    clearImage,
+    saveImage,
+    file,
+    fileName,
+  } = useImageStore();
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
-    if (file && file.size > 5 * 1024 * 1024) {
-      alert("파일 크기는 5MB 이하로 업로드해주세요.");
-      return;
-    }
-
     if (file) {
-      setFile(file);
-      setImagePreview(URL.createObjectURL(file));
       const response = await checkImage(file);
-      setImageUrl(response.imageUrl);
-      setFileName(response.fileName);
+      console.log(response);
     }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     try {
       const formData = new FormData(e.target as HTMLFormElement);
 
@@ -78,21 +71,19 @@ export default function CreateLostFoundPage() {
           | "other",
         age: formData.get("age") as string,
         breed: formData.get("breed") as string,
+        gender: formData.get("gender") as "male" | "female" | "unknown",
         location: formData.get("location") as string,
         date: formData.get("date") as string,
         reward: formData.get("reward") ? Number(formData.get("reward")) : 0,
         contact: formData.get("contact") as string,
         postType: postType,
-        gender: formData.get("gender") as "male" | "female" | "unknown",
+        status: "finding",
       };
 
-      const response = await createPost(postData);
+      saveImage(file as File, fileName as string);
+      createPost(postData);
 
-      if (response.statusCode === 200) {
-        const response = await saveImage(file, fileName);
-        console.log(response);
-        router.push("/lost-found");
-      }
+      router.push("/lost-found");
     } catch (error) {
       console.error("게시물 생성 중 오류가 발생했습니다:", error);
       alert("게시물을 생성하는 중 오류가 발생했습니다. 다시 시도해주세요.");

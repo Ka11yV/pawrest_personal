@@ -1,43 +1,56 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { MapPin, Calendar, Phone } from "lucide-react"
+import Image from "next/image";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { MapPin, Calendar, Phone } from "lucide-react";
+import MissingAnimalPost from "@/app/Interface/post";
 
-interface Pet {
-  id: number
-  type: "lost" | "found"
-  title: string
-  species: string
-  breed: string
-  gender: string
-  age: string
-  location: string
-  date: string
-  description: string
-  contact: string
-  image: string
-  reward?: string
-  status: string
-}
+const speciesMap = {
+  dog: "개",
+  cat: "고양이",
+  bird: "새",
+  rabbit: "토끼",
+  other: "기타",
+};
+
+const genderMap = {
+  male: "수컷",
+  female: "암컷",
+  unknown: "미상",
+};
 
 interface LostFoundCardProps {
-  pet: Pet
+  pet: MissingAnimalPost;
 }
 
 export default function LostFoundCard({ pet }: LostFoundCardProps) {
   return (
     <Card className="overflow-hidden hover:shadow-md transition-shadow">
       <div className="relative h-48 w-full">
-        <Image src={pet.image || "/placeholder.svg"} alt={pet.title} fill className="object-cover" />
+        <Image
+          src={pet.image || "/assets/placeholder.png"}
+          alt={pet.title}
+          fill
+          className="object-cover"
+        />
         <div className="absolute top-2 left-2">
-          <Badge className={pet.type === "lost" ? "bg-red-500" : "bg-blue-500"}>
-            {pet.type === "lost" ? "실종" : "발견"}
+          <Badge
+            className={pet.postType === "lost" ? "bg-red-500" : "bg-blue-500"}
+          >
+            {pet.postType === "lost" ? "실종" : "발견"}
           </Badge>
         </div>
         {pet.reward && (
           <div className="absolute top-2 right-2">
-            <Badge variant="outline" className="bg-yellow-100 text-yellow-800 border-yellow-200">
+            <Badge
+              variant="outline"
+              className="bg-yellow-100 text-yellow-800 border-yellow-200"
+            >
               사례금: {pet.reward}
             </Badge>
           </div>
@@ -51,7 +64,9 @@ export default function LostFoundCard({ pet }: LostFoundCardProps) {
           </Badge>
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
-          <Badge variant="secondary">{pet.species}</Badge>
+          <Badge variant="secondary">
+            {speciesMap[pet.species as keyof typeof speciesMap]}
+          </Badge>
           <Badge variant="secondary">{pet.breed}</Badge>
           <Badge variant="secondary">{pet.gender}</Badge>
           <Badge variant="secondary">{pet.age}</Badge>
@@ -60,7 +75,9 @@ export default function LostFoundCard({ pet }: LostFoundCardProps) {
       <CardContent className="p-4 space-y-2">
         <div className="flex items-start gap-2 text-sm">
           <MapPin className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-          <span className="text-muted-foreground line-clamp-1">{pet.location}</span>
+          <span className="text-muted-foreground line-clamp-1">
+            {pet.location}
+          </span>
         </div>
         <div className="flex items-start gap-2 text-sm">
           <Calendar className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
@@ -73,11 +90,13 @@ export default function LostFoundCard({ pet }: LostFoundCardProps) {
           <Phone className="h-4 w-4 text-muted-foreground" />
           <span className="text-muted-foreground">{pet.contact}</span>
         </div>
-        <Link href={`/lost-found/${pet.id}`} className="text-sm font-medium text-primary hover:underline">
+        <Link
+          href={`/lost-found/${pet.id}`}
+          className="text-sm font-medium text-primary hover:underline"
+        >
           상세보기
         </Link>
       </CardFooter>
     </Card>
-  )
+  );
 }
-
