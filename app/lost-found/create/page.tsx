@@ -35,21 +35,21 @@ export default function CreateLostFoundPage() {
   const [loading, setLoading] = useState(false);
   const { createPost } = missingAnimalStore();
   const {
-    checkImage,
-    imageUrl,
+    checkFile,
     imagePreview,
     clearImage,
-    saveImage,
     file,
     fileName,
+    setImageUrl,
+    imageUrl,
   } = useImageStore();
 
   const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (file) {
-      const response = await checkImage(file);
-      console.log(response);
+      setImageUrl(file);
+      checkFile(file);
     }
   };
 
@@ -80,7 +80,6 @@ export default function CreateLostFoundPage() {
         status: "finding",
       };
 
-      saveImage(file as File, fileName as string);
       createPost(postData);
 
       router.push("/lost-found");

@@ -2,7 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ["www.animal.go.kr", "www.canva.com", "localhost"],
+    domains: [
+      "www.animal.go.kr",
+      "www.canva.com",
+      "localhost",
+      "cmzibiapbpoyfptuyewn.supabase.co",
+    ],
   },
 };
 
