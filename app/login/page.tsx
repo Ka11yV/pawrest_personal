@@ -44,14 +44,11 @@ export default function LoginPage() {
 
     if (response.statusCode === 200) {
       router.push("/");
+      router.refresh();
     } else {
       setError(response.response.data.message);
     }
   };
-
-  if (isLogged) {
-    router.push("/");
-  }
 
   return (
     <div className="flex flex-col min-h-screen">

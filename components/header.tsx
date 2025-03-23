@@ -1,34 +1,15 @@
-"use client";
-
 import Link from "next/link";
-import { Button } from "./ui/button";
-import { useEffect, useState } from "react";
-import userStore from "@/app/store/userStore";
-import { useRouter } from "next/navigation";
-import { useCookies } from "react-cookie";
-import Loading from "./loading";
-import Image from "next/image";
+import AuthButtonGroup from "./authButtonGroup";
+import { createClient } from "@/utils/supabase/server";
+export async function Header() {
 
+  const supabase = await createClient();
 
-export function Header() {
-  const router = useRouter();
-  const { isLogged, setIsLogged, logout, checkSession } = userStore();
-  const [user, setUser] = useState(null);
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  const handleLogout = async () => {
-    await logout(); // 로그아웃 API 호출 
-    setIsLogged(false); // 로그아웃 상태로 변경
-  };
-
-  const handleCheckSession = async () => {
-    const response = await checkSession();
-  };
-
-  useEffect(() => {
-    handleCheckSession(); // 세션 확인
-  }, []); // 빈 의존성 배열을 주어 마운트 시에만 실행되도록 설정
-
-  
+  console.log(user);
 
   return (
     <header className="w-full bg-white border-b sticky top-0 z-50">
@@ -61,32 +42,8 @@ export function Header() {
             입양신청
           </Link>
         </nav>
-          <div className="flex items-center gap-3">
-          {isLogged ? (
-            <>
-              <Link className="font-medium hover:text-green-600 py-2" href="/mypage">
-              <Button className="w-full mt-3" variant="white">
-                  프로필
-                </Button>
-              </Link>
-              <Button
-                className="w-full mt-3"
-                onClick={handleLogout}>
-                로그아웃
-              </Button>
-            </>
-          ) : (
-            <>
-              <Link className="font-medium hover:text-green-600 py-2" href="/login">
-                <Button className="w-full mt-3" variant="white">
-                  로그인
-                </Button>
-              </Link>
-              <Link href="/register">
-                <Button className="w-full mt-3">회원가입</Button>
-              </Link>
-            </>
-          )}
+        <div className="flex items-center gap-3">
+          <AuthButtonGroup />
         </div>
       </div>
     </header>
